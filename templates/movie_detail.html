@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ movie.title }}</h2>
+<p>{{ movie.description }}</p>
+<p><strong>Price:</strong> ${{ movie.price }}</p>
+<p><strong>Stock:</strong> {{ movie.stock }}</p>
+
+<hr>
+<h4>Reviews</h4>
+{% if movie.reviews.all %}
+  <ul class="list-group mb-3">
+    {% for r in movie.reviews.all %}
+      <li class="list-group-item">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="me-3">
+            <strong>{{ r.user.username }}</strong> ({{ r.rating }}/5)<br>
+            {{ r.text }}
+          </div>
+          {% if user.is_authenticated and r.user_id == user.id %}
+            <div class="text-nowrap">
+              <a class="btn btn-sm btn-outline-primary me-1" href="{% url 'review_edit' r.pk %}">Edit</a>
+              <form method="post" action="{% url 'review_delete' r.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-danger">Delete</button>
+              </form>
+            </div>
+          {% endif %}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No reviews yet.</p>
+{% endif %}
+
+<hr>
+{% if user.is_authenticated %}
+  <h4>Add Review</h4>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary">Submit Review</button>
+  </form>
+{% else %}
+  <p><a href="{% url 'login' %}?next={{ request.path }}">Login</a> to add a review.</p>
+{% endif %}
+{% endblock %}
