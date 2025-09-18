@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Your Cart</h2>
+<h2>Your Cart {{ cart_number }}</h2>
+
+<!-- Cart selector -->
+<form method="get" class="mb-3">
+  <label for="cart_number">Switch Cart:</label>
+  <select name="cart_number" id="cart_number" onchange="this.form.submit()">
+    <option value="1" {% if cart_number == 1 %}selected{% endif %}>Cart 1</option>
+    <option value="2" {% if cart_number == 2 %}selected{% endif %}>Cart 2</option>
+    <option value="3" {% if cart_number == 3 %}selected{% endif %}>Cart 3</option>
+  </select>
+</form>
 
 {% if items %}
   <table class="table table-striped align-middle">
@@ -19,7 +29,7 @@
         <td>{{ item.qty }}</td>
         <td>${{ item.subtotal }}</td>
         <td>
-          <form method="post" action="{% url 'remove_from_cart' item.movie.pk %}">
+          <form method="post" action="{% url 'remove_from_cart' cart_number item.movie.pk %}">
             {% csrf_token %}
             <button class="btn btn-sm btn-outline-danger">Remove</button>
           </form>
@@ -32,14 +42,14 @@
   <div class="d-flex justify-content-between align-items-center">
     <h4 class="mb-0">Total: ${{ total }}</h4>
     <div class="d-flex gap-2">
-      <form method="post" action="{% url 'clear_cart' %}">
+      <form method="post" action="{% url 'clear_cart' cart_number %}">
         {% csrf_token %}
         <button class="btn btn-outline-secondary">Clear Cart</button>
       </form>
       {% if user.is_authenticated %}
-        <a href="{% url 'checkout' %}" class="btn btn-success">Checkout</a>
+        <a href="{% url 'checkout' cart_number %}" class="btn btn-success">Checkout</a>
       {% else %}
-        <a class="btn btn-primary" href="{% url 'login' %}?next={% url 'view_cart' %}">Log in to Checkout</a>
+        <a class="btn btn-primary" href="{% url 'login' %}?next={% url 'view_cart' cart_number %}">Log in to Checkout</a>
       {% endif %}
     </div>
   </div>

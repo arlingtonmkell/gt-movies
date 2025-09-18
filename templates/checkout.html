@@ -1,0 +1,10 @@
+<h2>Checkout Cart {{ cart.cart_number }}</h2>
+<ul>
+  {% for item in cart.items.all %}
+    <li>{{ item.movie.title }}</li>
+  {% endfor %}
+</ul>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Confirm Checkout</button>
+</form>

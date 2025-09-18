@@ -145,3 +145,30 @@ def review_delete(request, pk):
     review.delete()
     messages.info(request, "Review deleted.")
     return redirect("movie_detail", pk=movie_pk)
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Cart, CartItem, Movie
+
+@login_required
+def add_to_cart(request, movie_id):
+    movie = get_object_or_404(Movie, id=movie_id)
+    if request.method == "POST":
+        cart_number = int(request.POST.get("cart_number"))
+        cart, created = Cart.objects.get_or_create(user=request.user, cart_number=cart_number)
+        CartItem.objects.get_or_create(cart=cart, movie=movie)
+        return redirect("view_cart", cart_number=cart_number)
+    return render(request, "cart.html", {"movie": movie})
+
+@login_required
+def view_cart(request, cart_number):
+    cart = get_object_or_404(Cart, user=request.user, cart_number=cart_number)
+    return render(request, "my_orders.html", {"cart": cart})
+
+@login_required
+def checkout(request, cart_number):
+    cart = get_object_or_404(Cart, user=request.user, cart_number=cart_number)
+    if request.method == "POST":
+        cart.items.all().delete()
+        return render(request, "checkout_success.html", {"cart_number": cart_number})
+    return render(request, "checkout.html", {"cart": cart})

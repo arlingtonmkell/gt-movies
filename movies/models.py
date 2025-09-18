@@ -35,3 +35,23 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.movie.title} - {self.rating}/5 by {self.user.username}"
+
+# movies/models.py
+from django.db import models
+from django.contrib.auth.models import User
+
+class Cart(models.Model):
+    CART_CHOICES = [(1, "Cart 1"), (2, "Cart 2"), (3, "Cart 3")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    cart_number = models.IntegerField(choices=CART_CHOICES)
+
+    def __str__(self):
+        return f"{self.user.username} - Cart {self.cart_number}"
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
+    movie = models.ForeignKey("movies.Movie", on_delete=models.CASCADE)  # adjust model name if different
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.movie.title} in {self.cart}"
